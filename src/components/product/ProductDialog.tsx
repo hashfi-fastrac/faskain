@@ -446,7 +446,7 @@ export function ProductDialog({ product, open, onOpenChange }: ProductDialogProp
               <div className="space-y-2">
                 <Button
                   className="w-full h-12 text-base"
-                  onClick={() => handleAddToCart(closeDialog)}
+                  onClick={() => handleAddToCart()}
                   disabled={product.stock === 0 || !!quantityError}
                 >
                   <ShoppingCart className="h-5 w-5 mr-2" />

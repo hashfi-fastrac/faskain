@@ -11,7 +11,7 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: `${APP_NAME} - Exclusive Collection`,
   description:
-    "Discover premium menswear, timeless footwear, and classic accessories — built for men who move with purpose and style.",
+    "Discover our premium selection of fabrics and textiles, crafted for excellence and style.",
   keywords: "wholesale, catalog, ecommerce, whatsapp checkout, menswear, fashion",
 };
 

@@ -47,18 +47,18 @@ export default function HomePage() {
           <div className="max-w-4xl mx-auto text-center space-y-8">
             <Badge className="px-4 py-2 text-sm" variant="secondary">
               <Sparkles className="h-3 w-3 mr-2" />
-              HMW Exclusive Collection
+              fastKain Exclusive Collection
             </Badge>
 
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight">
-              Style & <span className="gradient-text">Quality.</span>{" "}
+              Premium <span className="gradient-text">Quality.</span>{" "}
               <br className="hidden md:block" />
-              Confidence by HMW
+              Confidence by fastKain
             </h1>
 
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto hover:text-white transition-colors">
-              Discover premium menswear, timeless footwear, and classic accessories —
-              built for men who move with purpose and style.
+              Discover our premium selection of fabrics and textiles, crafted for
+              excellence and style.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">

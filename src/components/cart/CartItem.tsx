@@ -21,6 +21,31 @@ export function CartItem({ item, variant = "default" }: CartItemProps) {
     product.price - (product.price * product.discountPercentage) / 100;
   const itemTotal = discountedPrice * quantity;
 
+  // Get the image for the selected variant
+  const getVariantImage = (): string => {
+    if (!selectedVariant || !product.variants?.colors) {
+      return product.thumbnail;
+    }
+
+    // Extract color code from selectedVariant (format: "Color Name (Code)")
+    const codeMatch = selectedVariant.match(/\(([^)]+)\)/);
+    const colorCode = codeMatch ? codeMatch[1] : null;
+
+    if (!colorCode) {
+      return product.thumbnail;
+    }
+
+    // Find the matching color variant
+    const colorVariant = product.variants.colors.find(
+      (color) => color.code === colorCode
+    );
+
+    // Return the first image of the color variant or fallback to thumbnail
+    return colorVariant?.images[0] || product.thumbnail;
+  };
+
+  const variantImage = getVariantImage();
+
   const handleIncrement = () => {
     if (quantity < product.stock && variantKey) {
       updateQuantity(variantKey, quantity + 1);
@@ -44,8 +69,8 @@ export function CartItem({ item, variant = "default" }: CartItemProps) {
       <div className="flex gap-3 py-3">
         <div className="relative h-16 w-16 flex-shrink-0 rounded-lg overflow-hidden bg-secondary">
           <Image
-            src={product.thumbnail}
-            alt={product.title}
+            src={variantImage}
+            alt={`${product.title}${selectedVariant ? ` - ${selectedVariant}` : ""}`}
             fill
             className="object-cover"
           />
@@ -80,8 +105,8 @@ export function CartItem({ item, variant = "default" }: CartItemProps) {
       <div className="flex gap-3 sm:gap-4 flex-1">
         <div className="relative h-20 w-20 sm:h-24 sm:w-24 flex-shrink-0 rounded-lg overflow-hidden bg-secondary">
           <Image
-            src={product.thumbnail}
-            alt={product.title}
+            src={variantImage}
+            alt={`${product.title}${selectedVariant ? ` - ${selectedVariant}` : ""}`}
             fill
             className="object-cover"
           />

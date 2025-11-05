@@ -12,7 +12,7 @@ export const MOCK_PRODUCTS: Product[] = [
     rating: 4.8,
     stock: 100,
     tags: ["polyester", "spandex", "elastic"],
-    brand: "HMW Textile",
+    brand: "fastKain",
     sku: "KPP-MULTI-4WAY",
     weight: 1,
     dimensions: {
@@ -100,7 +100,7 @@ export const MOCK_PRODUCTS: Product[] = [
     rating: 4.9,
     stock: 80,
     tags: ["cotton", "rayon", "shimmer", "silk"],
-    brand: "HMW Textile",
+    brand: "fastKain",
     sku: "KCR-SHIMMER-SILK",
     weight: 1,
     dimensions: {
