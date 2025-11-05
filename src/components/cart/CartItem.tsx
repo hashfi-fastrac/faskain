@@ -15,26 +15,28 @@ interface CartItemProps {
 
 export function CartItem({ item, variant = "default" }: CartItemProps) {
   const { updateQuantity, removeFromCart } = useCart();
-  const { product, quantity } = item;
+  const { product, quantity, selectedVariant, variantKey } = item;
 
   const discountedPrice =
     product.price - (product.price * product.discountPercentage) / 100;
   const itemTotal = discountedPrice * quantity;
 
   const handleIncrement = () => {
-    if (quantity < product.stock) {
-      updateQuantity(product.id, quantity + 1);
+    if (quantity < product.stock && variantKey) {
+      updateQuantity(variantKey, quantity + 1);
     }
   };
 
   const handleDecrement = () => {
-    if (quantity > 1) {
-      updateQuantity(product.id, quantity - 1);
+    if (quantity > 1 && variantKey) {
+      updateQuantity(variantKey, quantity - 1);
     }
   };
 
   const handleRemove = () => {
-    removeFromCart(product.id);
+    if (variantKey) {
+      removeFromCart(variantKey);
+    }
   };
 
   if (variant === "compact") {
@@ -51,6 +53,9 @@ export function CartItem({ item, variant = "default" }: CartItemProps) {
 
         <div className="flex-1 min-w-0">
           <h4 className="font-medium text-sm line-clamp-1">{product.title}</h4>
+          {selectedVariant && (
+            <p className="text-xs text-muted-foreground">{selectedVariant}</p>
+          )}
           <p className="text-xs text-muted-foreground">SKU: {product.sku}</p>
           <div className="flex items-center gap-2 mt-1">
             <span className="font-semibold text-sm">
@@ -86,6 +91,16 @@ export function CartItem({ item, variant = "default" }: CartItemProps) {
           <h4 className="font-semibold text-sm sm:text-base mb-1 line-clamp-2">
             {product.title}
           </h4>
+
+          {/* Variant Display */}
+          {selectedVariant && (
+            <div className="mb-1">
+              <Badge variant="secondary" className="text-xs">
+                {selectedVariant}
+              </Badge>
+            </div>
+          )}
+
           <p className="text-xs text-muted-foreground mb-2">SKU: {product.sku}</p>
 
           <div className="flex items-center gap-2 flex-wrap">
@@ -110,6 +125,7 @@ export function CartItem({ item, variant = "default" }: CartItemProps) {
           </p>
         </div>
       </div>
+
       <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-between gap-2">
         <div className="flex items-center border border-border rounded-lg">
           <Button
@@ -132,6 +148,7 @@ export function CartItem({ item, variant = "default" }: CartItemProps) {
             <Plus className="h-3 w-3" />
           </Button>
         </div>
+
         <div className="flex items-center gap-2 sm:gap-3">
           <div className="text-right">
             <p className="text-xs text-muted-foreground sm:hidden">Total</p>

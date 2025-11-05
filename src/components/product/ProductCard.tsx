@@ -32,10 +32,14 @@ export function ProductCard({ product }: ProductCardProps) {
 
   const discountedPrice =
     product.price - (product.price * product.discountPercentage) / 100;
+
+  // Check if any variant is in cart
   const inCart = isInCart(product.id);
 
   const categoryLabel =
     CATEGORIES.find((c) => c.value === product.category)?.label || product.category;
+
+  const displayImage = product.thumbnail || product.images[0];
 
   return (
     <>
@@ -47,7 +51,7 @@ export function ProductCard({ product }: ProductCardProps) {
       >
         <div className="relative aspect-square overflow-hidden bg-secondary">
           <Image
-            src={product.thumbnail}
+            src={displayImage}
             alt={product.title}
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-110"

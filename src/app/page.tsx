@@ -35,7 +35,7 @@ export default function HomePage() {
       <section className="relative overflow-hidden -mt-16 pt-16 md:-mt-16 md:pt-16">
         <div className="absolute inset-0 bg-gradient-to-br from-background via-secondary to-background opacity-50" />
         <Image
-          src="/Hero2.jpg"
+          src="/hero3.jpg"
           alt="Hero Background"
           fill
           className="object-cover object-center opacity-30"

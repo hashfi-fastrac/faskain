@@ -1,4 +1,3 @@
-// src/components/product/ProductDialog.tsx
 "use client";
 
 import Image from "next/image";
@@ -23,6 +22,7 @@ import { formatCurrency } from "@/lib/utils";
 import { useProductDialog } from "@/hooks/useProduct";
 import { CATEGORIES } from "@/constants";
 import type { Product } from "@/types";
+import { useRef } from "react";
 
 interface ProductDialogProps {
   product: Product;
@@ -31,6 +31,9 @@ interface ProductDialogProps {
 }
 
 export function ProductDialog({ product, open, onOpenChange }: ProductDialogProps) {
+  const thumbnailScrollRef = useRef<HTMLDivElement>(null);
+  const mobileColorScrollRef = useRef<HTMLDivElement>(null);
+
   const {
     quantity,
     selectedColor,
@@ -59,6 +62,26 @@ export function ProductDialog({ product, open, onOpenChange }: ProductDialogProp
 
   const currentImage = allColorImages[currentImageIndex];
 
+  // Scroll functions for desktop thumbnails
+  const scrollThumbnails = (direction: "left" | "right") => {
+    if (!thumbnailScrollRef.current) return;
+    const scrollAmount = 200;
+    thumbnailScrollRef.current.scrollBy({
+      left: direction === "left" ? -scrollAmount : scrollAmount,
+      behavior: "smooth",
+    });
+  };
+
+  // Scroll functions for mobile colors
+  const scrollColors = (direction: "left" | "right") => {
+    if (!mobileColorScrollRef.current) return;
+    const scrollAmount = 150;
+    mobileColorScrollRef.current.scrollBy({
+      left: direction === "left" ? -scrollAmount : scrollAmount,
+      behavior: "smooth",
+    });
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl p-0 flex flex-col h-[100dvh] md:max-h-[90vh] max-md:w-full max-md:rounded-none max-md:m-0">
@@ -75,7 +98,7 @@ export function ProductDialog({ product, open, onOpenChange }: ProductDialogProp
           {/* Left Side: Image Carousel */}
           <div className="relative bg-secondary md:p-6 p-0">
             {/* Main Image with Carousel */}
-            <div className="relative w-full h-auto md:aspect-square md:mb-4 md:rounded-lg overflow-hidden bg-background/50 group">
+            <div className="relative w-full h-auto md:mb-4 md:rounded-lg overflow-hidden bg-background/50 group">
               <div className="relative w-full aspect-square md:aspect-auto">
                 <Image
                   src={currentImage.image}
@@ -87,7 +110,7 @@ export function ProductDialog({ product, open, onOpenChange }: ProductDialogProp
                 />
               </div>
 
-              {/* Carousel Controls - show only on desktop */}
+              {/* Carousel Controls */}
               {allColorImages.length > 1 && (
                 <>
                   <button
@@ -132,38 +155,59 @@ export function ProductDialog({ product, open, onOpenChange }: ProductDialogProp
               </div>
             </div>
 
-            {/* Desktop Thumbnails */}
-            <div className="hidden md:grid grid-cols-4 gap-2">
-              {allColorImages.map((colorImg, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setCurrentImageIndex(idx)}
-                  className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${
-                    currentImageIndex === idx
-                      ? "border-primary ring-2 ring-primary/20"
-                      : "border-transparent opacity-60 hover:opacity-100 hover:border-border"
-                  }`}
-                  aria-label={`View ${colorImg.colorName}`}
-                  title={colorImg.colorName}
-                >
-                  <Image
-                    src={colorImg.image}
-                    alt={`${product.title} - ${colorImg.colorName}`}
-                    fill
-                    className="object-cover"
-                  />
-                  {/* Color name overlay */}
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-1">
-                    <span className="text-[10px] text-white font-medium line-clamp-1">
-                      {colorImg.colorName}
-                    </span>
-                  </div>
-                </button>
-              ))}
+            {/* Desktop: Horizontal Scrollable Thumbnails (1 Line) */}
+            <div className="hidden md:block relative ">
+              {allColorImages.length > 4 && (
+                <>
+                  <button
+                    onClick={() => scrollThumbnails("left")}
+                    className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full bg-black/50 hover:bg-black/70 backdrop-blur-sm flex items-center justify-center"
+                  >
+                    <ChevronLeft className="h-4 w-4 text-white" />
+                  </button>
+                  <button
+                    onClick={() => scrollThumbnails("right")}
+                    className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full bg-black/50 hover:bg-black/70 backdrop-blur-sm flex items-center justify-center"
+                  >
+                    <ChevronRight className="h-4 w-4 text-white" />
+                  </button>
+                </>
+              )}
+
+              <div
+                ref={thumbnailScrollRef}
+                className="flex gap-2 overflow-x-auto scrollbar-hide scroll-smooth px-8"
+              >
+                {allColorImages.map((colorImg, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentImageIndex(idx)}
+                    className={`relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
+                      currentImageIndex === idx
+                        ? "border-primary ring-2 ring-primary/20"
+                        : "border-transparent opacity-60 hover:opacity-100 hover:border-border"
+                    }`}
+                    aria-label={`View ${colorImg.colorName}`}
+                    title={colorImg.colorName}
+                  >
+                    <Image
+                      src={colorImg.image}
+                      alt={`${product.title} - ${colorImg.colorName}`}
+                      fill
+                      className="object-cover"
+                    />
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-1">
+                      <span className="text-[10px] text-white font-medium line-clamp-1">
+                        {colorImg.colorName}
+                      </span>
+                    </div>
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {/* Mobile Thumbnails */}
-            <div className="md:hidden px-4 py-3 flex gap-2 overflow-x-auto">
+            {/* Mobile: Horizontal Scrollable Thumbnails */}
+            <div className="md:hidden px-4 py-3 flex gap-2 overflow-x-auto scrollbar-hide">
               {allColorImages.map((colorImg, idx) => (
                 <button
                   key={idx}
@@ -263,7 +307,7 @@ export function ProductDialog({ product, open, onOpenChange }: ProductDialogProp
 
             <Separator />
 
-            {/* Color Selection */}
+            {/* Mobile: Horizontal Scrollable Color Selection */}
             {allColorImages.length > 1 && (
               <div>
                 <label className="text-sm font-medium mb-2 block">
@@ -272,7 +316,39 @@ export function ProductDialog({ product, open, onOpenChange }: ProductDialogProp
                     ({selectedColor.code})
                   </span>
                 </label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+
+                {/* Mobile Horizontal Scroll */}
+                <div className="md:hidden">
+                  <div
+                    ref={mobileColorScrollRef}
+                    className="flex gap-2 overflow-x-auto scrollbar-hide scroll-smooth"
+                  >
+                    {allColorImages.map((colorImg, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setCurrentImageIndex(idx)}
+                        className={`relative flex-shrink-0 p-3 rounded-lg border-2 text-left transition-all hover:border-primary/50 min-w-[140px] ${
+                          currentImageIndex === idx
+                            ? "border-primary bg-primary/5"
+                            : "border-border"
+                        }`}
+                        title={colorImg.colorName}
+                        aria-label={`Select ${colorImg.colorName}`}
+                      >
+                        <div className="text-sm font-medium">{colorImg.colorName}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {colorImg.colorCode}
+                        </div>
+                        {currentImageIndex === idx && (
+                          <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-primary" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Desktop Grid */}
+                <div className="hidden md:grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {allColorImages.map((colorImg, idx) => (
                     <button
                       key={idx}
@@ -347,7 +423,6 @@ export function ProductDialog({ product, open, onOpenChange }: ProductDialogProp
                   )}
                 </div>
 
-                {/* Error Message */}
                 {quantityError && (
                   <p className="text-xs text-destructive">{quantityError}</p>
                 )}

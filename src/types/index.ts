@@ -7,7 +7,7 @@ export interface ColorVariant {
 export interface ColorVariantArray {
   name: string;
   code: string;
-  image: string; // Keep array for backward compatibility
+  image: string;
 }
 
 export interface ProductVariants {
@@ -60,7 +60,8 @@ export interface Review {
 export interface CartItem {
   product: Product;
   quantity: number;
-  selectedVariant?: string;
+  selectedVariant?: string; // Format: "Color Name (Code)"
+  variantKey?: string; // NEW: Unique key for variant (e.g., "1-maroon-8012")
 }
 
 export interface Cart {

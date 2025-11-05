@@ -1,4 +1,3 @@
-// src/constants/index.ts
 import { formatCurrency } from "@/lib/utils";
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -21,7 +20,12 @@ export const SORT_OPTIONS = [
 
 export const WHATSAPP_MESSAGE_TEMPLATE = (cart: {
   items: Array<{
-    product: { title: string; sku: string; price: number };
+    product: {
+      title: string;
+      sku: string;
+      price: number;
+      discountPercentage: number;
+    };
     quantity: number;
     selectedVariant?: string;
   }>;
@@ -30,12 +34,17 @@ export const WHATSAPP_MESSAGE_TEMPLATE = (cart: {
 }) => {
   const orderDetails = cart.items
     .map((item, index) => {
-      const variant = item.selectedVariant ? ` (${item.selectedVariant})` : "";
+      const discountedPrice =
+        item.product.price - (item.product.price * item.product.discountPercentage) / 100;
+
+      const variant = item.selectedVariant ? `\n   Variant: ${item.selectedVariant}` : "";
+      const itemSubtotal = discountedPrice * item.quantity;
+
       return `${index + 1}. ${item.product.title}${variant}\n   SKU: ${
         item.product.sku
       }\n   Qty: ${item.quantity}x @ ${formatCurrency(
-        item.product.price
-      )}\n   Subtotal: ${formatCurrency(item.product.price * item.quantity)}`;
+        discountedPrice
+      )}\n   Subtotal: ${formatCurrency(itemSubtotal)}`;
     })
     .join("\n\n");
 

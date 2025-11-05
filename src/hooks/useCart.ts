@@ -8,19 +8,23 @@ export const useCart = () => {
 
   const addToCart = (product: Product, quantity = 1, variant?: string) => {
     cart.addItem(product, quantity, variant);
+
+    const variantText = variant ? ` - ${variant}` : "";
     toast({
       title: "Added to cart! 🛒",
-      description: `${product.title} (${quantity}x)`,
+      description: `${product.title}${variantText} (${quantity}x)`,
     });
   };
 
-  const removeFromCart = (productId: number) => {
-    const item = cart.items.find((item) => item.product.id === productId);
-    cart.removeItem(productId);
+  const removeFromCart = (variantKey: string) => {
+    const item = cart.items.find((item) => item.variantKey === variantKey);
+    cart.removeItem(variantKey);
+
     if (item) {
+      const variantText = item.selectedVariant ? ` - ${item.selectedVariant}` : "";
       toast({
         title: "Removed from cart",
-        description: `${item.product.title}`,
+        description: `${item.product.title}${variantText}`,
         variant: "destructive",
       });
     }
@@ -28,23 +32,34 @@ export const useCart = () => {
 
   const checkout = () => {
     if (cart.items.length === 0) {
-      alert("Cart is empty!");
+      toast({
+        title: "Cart is empty",
+        description: "Please add items to cart before checkout",
+        variant: "destructive",
+      });
       return;
     }
+
     const whatsappLink = generateWhatsAppLink({
       items: cart.items,
       totalItems: cart.totalItems,
       subtotal: cart.subtotal,
     });
+
     window.open(whatsappLink, "_blank");
     cart.clearCart();
+
     toast({
-      title: "Order sent!",
+      title: "Order sent! 📱",
       description: "Your cart has been cleared.",
     });
   };
 
-  const isInCart = (productId: number): boolean => {
+  const isInCart = (productId: number, variant?: string): boolean => {
+    if (variant) {
+      const variantKey = `${productId}-${variant}`;
+      return cart.items.some((item) => item.variantKey === variantKey);
+    }
     return cart.items.some((item) => item.product.id === productId);
   };
 

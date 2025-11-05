@@ -100,7 +100,7 @@ export default function ProductsPage() {
           <div className="relative overflow-hidden rounded-xl">
             <div className="absolute inset-0 bg-gradient-to-br from-background via-secondary to-background opacity-30" />
             <Image
-              src="/Hero4.jpg"
+              src="/hero5.jpg"
               alt="Products Background"
               fill
               className="object-cover object-top opacity-40"
@@ -110,7 +110,7 @@ export default function ProductsPage() {
 
             <div className="relative py-16 md:py-20 px-4 md:px-8">
               <div className="max-w-3xl mx-auto text-center space-y-3">
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold">HMW</h1>
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold">fastKain</h1>
                 <p className="text-base md:text-lg text-muted-foreground">
                   Browse our premium collection of Men&apos;s products
                 </p>
