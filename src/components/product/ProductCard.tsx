@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/hooks/useCart";
 import { formatCurrency } from "@/lib/utils";
+import { CATEGORIES } from "@/constants";
 import type { Product } from "@/types";
 import { ProductDialog } from "./ProductDialog";
 
@@ -22,12 +23,19 @@ export function ProductCard({ product }: ProductCardProps) {
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.stopPropagation();
-    addToCart(product, 1);
+    // If has variants, use first variant
+    const variant = product.variants?.colors[0]
+      ? `${product.variants.colors[0].name} (${product.variants.colors[0].code})`
+      : undefined;
+    addToCart(product, 1, variant);
   };
 
   const discountedPrice =
     product.price - (product.price * product.discountPercentage) / 100;
   const inCart = isInCart(product.id);
+
+  const categoryLabel =
+    CATEGORIES.find((c) => c.value === product.category)?.label || product.category;
 
   return (
     <>
@@ -55,7 +63,6 @@ export function ProductCard({ product }: ProductCardProps) {
               }}
               className="opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300"
             >
-              View Details
               <Eye className="h-4 w-4" />
             </Button>
           </div>
@@ -83,7 +90,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
         <CardContent className="p-4">
           <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-            {product.category.replace("-", " ")}
+            {categoryLabel}
           </p>
           <h3 className="font-semibold text-sm mb-2 line-clamp-2 min-h-[2.5rem]">
             {product.title}
@@ -94,6 +101,14 @@ export function ProductCard({ product }: ProductCardProps) {
               {product.rating.toFixed(1)} ({product.reviews?.length || 0})
             </span>
           </div>
+
+          {/* Show color variants count if available */}
+          {product.variants?.colors && product.variants.colors.length > 1 && (
+            <p className="text-xs text-muted-foreground mb-2">
+              {product.variants.colors.length} Color Options
+            </p>
+          )}
+
           <div className="flex items-end gap-2 mb-3">
             <span className="text-xl font-bold">{formatCurrency(discountedPrice)}</span>
             {product.discountPercentage > 0 && (

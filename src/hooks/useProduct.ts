@@ -1,10 +1,10 @@
-import { useState } from "react";
+// src/hooks/useProduct.ts
+import { useState, useEffect, useMemo } from "react";
 import { z } from "zod";
 import { useCart } from "./useCart";
-import { getProductVariants, formatVariantLabel } from "@/constants/variants";
 import { formatCurrency } from "@/lib/utils";
 import { toast } from "./useToast";
-import type { Product } from "@/types";
+import type { Product, ColorVariant } from "@/types";
 
 const createQuantitySchema = (maxStock: number) =>
   z
@@ -14,23 +14,51 @@ const createQuantitySchema = (maxStock: number) =>
     .max(maxStock, `Maximum quantity is ${maxStock} (available stock)`);
 
 export function useProductDialog(product: Product) {
-  const variants = getProductVariants(product.category);
   const { addToCart, getItemQuantity } = useCart();
 
+  // Flatten all color variants to create a unified gallery
+  const allColorImages = useMemo(() => {
+    if (!product.variants?.colors || product.variants.colors.length === 0) {
+      return product.images.map((img, idx) => ({
+        image: img,
+        colorName: "Default",
+        colorCode: "000",
+        originalIndex: idx,
+      }));
+    }
+
+    return product.variants.colors.map((color, idx) => ({
+      image: color.images[0], // Take only first image of each color
+      colorName: color.name,
+      colorCode: color.code,
+      originalIndex: idx,
+    }));
+  }, [product]);
+
   // State
-  const [quantity, setQuantity] = useState(1);
-  const [selectedImage, setSelectedImage] = useState(0);
-  const [selectedSize, setSelectedSize] = useState(variants.sizes[0]);
-  const [selectedColor, setSelectedColor] = useState(variants.colors[0]);
+  const [quantity, setQuantity] = useState<number | "">(1);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [quantityError, setQuantityError] = useState<string>("");
+
+  // Selected color based on current image index
+  const selectedColor = useMemo(() => {
+    const current = allColorImages[currentImageIndex];
+    return {
+      name: current.colorName,
+      code: current.colorCode,
+      images: [current.image],
+    };
+  }, [currentImageIndex, allColorImages]);
 
   // Computed values
   const discountedPrice =
     product.price - (product.price * product.discountPercentage) / 100;
-  const total = discountedPrice * quantity;
+  const numQuantity = typeof quantity === "number" ? quantity : 0;
+  const total = discountedPrice * numQuantity;
   const inCartQty = getItemQuantity(product.id);
-  const variantLabel = formatVariantLabel(selectedSize, selectedColor.name);
+  const variantLabel = `${selectedColor.name} (${selectedColor.code})`;
 
-  // Zod schema untuk current product
+  // Zod schema for current product
   const quantitySchema = createQuantitySchema(product.stock);
 
   const validateQuantity = (value: number): { success: boolean; error?: string } => {
@@ -45,22 +73,29 @@ export function useProductDialog(product: Product) {
   };
 
   const handleQuantityChange = (value: string) => {
-    // Allow empty string saat user mengetik
+    setQuantityError("");
+
     if (value === "") {
-      setQuantity("" as any);
+      setQuantity("");
       return;
     }
 
     const numValue = parseInt(value, 10);
 
-    // Skip jika bukan number valid
     if (isNaN(numValue)) return;
 
-    // Set tanpa validation dulu (validation saat blur)
     if (numValue >= 0 && numValue <= product.stock) {
       setQuantity(numValue);
+
+      if (numValue === 0) {
+        const validation = validateQuantity(numValue);
+        if (!validation.success) {
+          setQuantityError(validation.error || "Invalid quantity");
+        }
+      }
     } else if (numValue > product.stock) {
       setQuantity(product.stock);
+      setQuantityError(`Only ${product.stock} units available`);
       toast({
         title: "Stock limit reached",
         description: `Maximum available stock is ${product.stock} units`,
@@ -70,34 +105,42 @@ export function useProductDialog(product: Product) {
   };
 
   const handleQuantityBlur = () => {
-    const currentValue = Number(quantity);
+    const currentValue = typeof quantity === "number" ? quantity : 0;
 
-    if (!quantity || isNaN(currentValue)) {
+    if (quantity === "" || currentValue === 0) {
       setQuantity(1);
+      const validation = validateQuantity(0);
+      if (!validation.success) {
+        setQuantityError(validation.error || "Invalid quantity");
+      }
       return;
     }
 
     const validation = validateQuantity(currentValue);
 
     if (!validation.success) {
-      // Auto-correct ke valid value
       if (currentValue < 1) {
         setQuantity(1);
       } else if (currentValue > product.stock) {
         setQuantity(product.stock);
       }
 
+      setQuantityError(validation.error || "Invalid quantity");
       toast({
         title: "Quantity adjusted",
         description: validation.error,
         variant: "destructive",
       });
+    } else {
+      setQuantityError("");
     }
   };
 
   const incrementQuantity = () => {
-    if (quantity < product.stock) {
-      setQuantity(quantity + 1);
+    const currentQty = typeof quantity === "number" ? quantity : 1;
+    if (currentQty < product.stock) {
+      setQuantity(currentQty + 1);
+      setQuantityError("");
     } else {
       toast({
         title: "Stock limit reached",
@@ -108,15 +151,28 @@ export function useProductDialog(product: Product) {
   };
 
   const decrementQuantity = () => {
-    if (quantity > 1) {
-      setQuantity(quantity - 1);
+    const currentQty = typeof quantity === "number" ? quantity : 1;
+    if (currentQty > 1) {
+      setQuantity(currentQty - 1);
+      setQuantityError("");
     }
   };
 
+  // Carousel controls
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % allColorImages.length);
+  };
+
+  const prevImage = () => {
+    setCurrentImageIndex((prev) => (prev === 0 ? allColorImages.length - 1 : prev - 1));
+  };
+
   const handleAddToCart = (onSuccess?: () => void) => {
-    const validation = validateQuantity(Number(quantity));
+    const numQty = typeof quantity === "number" ? quantity : 0;
+    const validation = validateQuantity(numQty);
 
     if (!validation.success) {
+      setQuantityError(validation.error || "Invalid quantity");
       toast({
         title: "Invalid quantity",
         description: validation.error,
@@ -125,14 +181,16 @@ export function useProductDialog(product: Product) {
       return;
     }
 
-    addToCart(product, Number(quantity), variantLabel);
+    addToCart(product, numQty, variantLabel);
     onSuccess?.();
   };
 
   const handleBuyNow = (onSuccess?: () => void) => {
-    const validation = validateQuantity(Number(quantity));
+    const numQty = typeof quantity === "number" ? quantity : 0;
+    const validation = validateQuantity(numQty);
 
     if (!validation.success) {
+      setQuantityError(validation.error || "Invalid quantity");
       toast({
         title: "Invalid quantity",
         description: validation.error,
@@ -141,17 +199,17 @@ export function useProductDialog(product: Product) {
       return;
     }
 
-    addToCart(product, Number(quantity), variantLabel);
+    addToCart(product, numQty, variantLabel);
 
     const message = `*🛍️ NEW ORDER*\n\n1. ${product.title}\n   SKU: ${
       product.sku
-    }\n   Variant: ${variantLabel}\n   Qty: ${quantity}x @ ${formatCurrency(
+    }\n   Variant: ${variantLabel}\n   Qty: ${numQty}x @ ${formatCurrency(
       discountedPrice
     )}\n   Subtotal: ${formatCurrency(
       total
-    )}\n\n---\n*Total Items:* ${quantity}\n*Grand Total:* ${formatCurrency(
+    )}\n\n---\n*Total Items:* ${numQty}\n*Grand Total:* ${formatCurrency(
       total
-    )}\n\nMohon proses pesanan ini. Terima kasih! 🙏`;
+    )}\n\nPlease process this order. Thank you! 🙏`;
 
     const whatsappLink = `https://wa.me/${
       process.env.NEXT_PUBLIC_WHATSAPP_NUMBER
@@ -163,17 +221,17 @@ export function useProductDialog(product: Product) {
 
   return {
     quantity,
-    selectedImage,
-    selectedSize,
     selectedColor,
-    variants,
+    allColorImages,
+    currentImageIndex,
     discountedPrice,
     total,
     inCartQty,
     variantLabel,
-    setSelectedImage,
-    setSelectedSize,
-    setSelectedColor,
+    quantityError,
+    nextImage,
+    prevImage,
+    setCurrentImageIndex,
     handleQuantityChange,
     handleQuantityBlur,
     incrementQuantity,

@@ -1,3 +1,4 @@
+// src/constants/index.ts
 import { formatCurrency } from "@/lib/utils";
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -5,19 +6,9 @@ export const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
 export const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME;
 
 export const CATEGORIES = [
-  { value: "mens-shirts", label: "Men's Shirts" },
-  { value: "mens-shoes", label: "Men's Shoes" },
-  { value: "mens-watches", label: "Men's Watches" },
+  { value: "kain-polos-polyester", label: "Kain Polos Polyester" },
+  { value: "kain-polos-cottonrayon", label: "Kain Polos Cotton Rayon" },
 ] as const;
-
-export const API_ENDPOINTS = {
-  PRODUCTS: "/products",
-  PRODUCT_BY_ID: (id: number) => `/products/${id}`,
-  PRODUCTS_BY_CATEGORY: (category: string) => `/products/category/${category}`,
-  PRODUCT_SEARCH: "/products/search",
-  AUTH_LOGIN: "/auth/login",
-  AUTH_ME: "/auth/me",
-} as const;
 
 export const PRODUCTS_PER_PAGE = 12;
 
@@ -52,13 +43,13 @@ export const WHATSAPP_MESSAGE_TEMPLATE = (cart: {
     cart.totalItems
   }\n*Grand Total:* ${formatCurrency(
     cart.subtotal
-  )}\n\nMohon proses pesanan ini. Terima kasih! 🙏`;
+  )}\n\nPlease process this order. Thank you! 🙏`;
 };
 
 export const STORAGE_KEYS = {
-  CART: "fastrac-cart",
-  AUTH_TOKEN: "fastrac-auth-token",
-  USER: "fastrac-user",
+  CART: "hmw-cart",
+  AUTH_TOKEN: "hmw-auth-token",
+  USER: "hmw-user",
 } as const;
 
 export const TEST_USER = {

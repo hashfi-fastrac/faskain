@@ -8,14 +8,12 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatCurrency(amount: number): string {
-  const exchangeRate = 15000;
-  const amountInIDR = amount * exchangeRate;
   return new Intl.NumberFormat("id-ID", {
     style: "currency",
     currency: "IDR",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(amountInIDR);
+  }).format(amount);
 }
 
 export function formatNumber(num: number): string {

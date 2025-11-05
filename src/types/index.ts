@@ -1,3 +1,19 @@
+export interface ColorVariant {
+  name: string;
+  code: string;
+  images: string[];
+}
+
+export interface ColorVariantArray {
+  name: string;
+  code: string;
+  image: string; // Keep array for backward compatibility
+}
+
+export interface ProductVariants {
+  colors: ColorVariant[];
+}
+
 export interface Product {
   id: number;
   title: string;
@@ -30,6 +46,7 @@ export interface Product {
   };
   images: string[];
   thumbnail: string;
+  variants?: ProductVariants;
 }
 
 export interface Review {
