@@ -131,7 +131,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="py-5 bg-gradient-to-br from-secondary via-background to-secondary">
+      {/* <section className="py-5 bg-gradient-to-br from-secondary via-background to-secondary">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center space-y-6">
             <h2 className="text-xl md:text-2xl font-bold">About This Project</h2>
@@ -155,7 +155,7 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
     </div>
   );
 }
