@@ -50,7 +50,7 @@ export const useCart = () => {
     cart.clearCart();
 
     toast({
-      title: "Order sent! 📱",
+      title: "Order sent!",
       description: "Your cart has been cleared.",
     });
   };
