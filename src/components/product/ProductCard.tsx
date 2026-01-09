@@ -46,38 +46,7 @@ export function ProductCard({ product }: ProductCardProps) {
       >
         <CardContent className="p-3 sm:p-4">
           <div className="flex gap-3 sm:gap-4">
-            {/* Left: Image */}
-            <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 overflow-hidden rounded-md bg-secondary">
-              <Image
-                src={displayImage}
-                alt={product.title}
-                fill
-                className="object-cover transition-transform duration-500 group-hover:scale-110"
-                sizes="(max-width: 640px) 80px, 96px"
-              />
-              {/* Badges on Image */}
-              {/* <div className="absolute top-1 left-1 flex flex-col gap-1">
-                {product.discountPercentage > 0 && (
-                  <Badge variant="destructive" className="text-[10px] px-1 py-0 h-4">
-                    -{product.discountPercentage.toFixed(0)}%
-                  </Badge>
-                )}
-                {product.stock < 10 && (
-                  <Badge variant="secondary" className="text-[10px] px-1 py-0 h-4">
-                    Low
-                  </Badge>
-                )}
-              </div> */}
-              {inCart && (
-                <div className="absolute top-1 right-1">
-                  <Badge className="bg-white text-black text-[10px] px-1 py-0 h-4">
-                    <ShoppingCart className="h-2 w-2" />
-                  </Badge>
-                </div>
-              )}
-            </div>
-
-            {/* Middle: Info */}
+            {/* Left: Info */}
             <div className="flex-1 min-w-0 flex flex-col justify-between">
               <div>
                 <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider mb-0.5">
@@ -98,11 +67,9 @@ export function ProductCard({ product }: ProductCardProps) {
                   </p>
                 )}
               </div>
-            </div>
 
-            {/* Right: Price & Button */}
-            <div className="flex flex-col justify-between items-end flex-shrink-0">
-              <div className="text-right">
+              {/* Price */}
+              <div className="mt-2">
                 <div className="text-base sm:text-lg font-bold">
                   {formatCurrency(discountedPrice)}
                 </div>
@@ -112,11 +79,33 @@ export function ProductCard({ product }: ProductCardProps) {
                   </div>
                 )}
               </div>
+            </div>
+
+            {/* Right: Image & Button */}
+            <div className="flex flex-col gap-2 flex-shrink-0">
+              <div className="relative w-20 h-20 sm:w-24 sm:h-24 overflow-hidden rounded-md bg-secondary">
+                <Image
+                  src={displayImage}
+                  alt={product.title}
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  sizes="(max-width: 640px) 80px, 96px"
+                />
+                {inCart && (
+                  <div className="absolute top-1 right-1">
+                    <Badge className="bg-white text-black text-[10px] px-1 py-0 h-4">
+                      <ShoppingCart className="h-2 w-2" />
+                    </Badge>
+                  </div>
+                )}
+              </div>
+
+              {/* Button below image */}
               <Button
                 size="sm"
                 onClick={handleQuickAdd}
                 variant={inCart ? "secondary" : "default"}
-                className="text-xs whitespace-nowrap"
+                className="text-xs whitespace-nowrap w-full"
               >
                 <ShoppingCart className="h-3 w-3 mr-1" />
                 {inCart ? "Add More" : "Add"}
